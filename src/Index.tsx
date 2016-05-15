@@ -12,8 +12,14 @@ class ApplicationStorage implements IApplicationProps {
     public todos: ITodo[] = [];
     private callback: () => void;
     
-    public onChange(callback: () => void) {
+    public onNotify(callback: () => void) {
         this.callback = callback;
+    }
+    
+    private notify() {
+        if (this.callback) {
+            this.callback();
+        }
     }
     
     public onAdd = (text: string) => {
@@ -22,20 +28,20 @@ class ApplicationStorage implements IApplicationProps {
             text: text,
             done: false
         });
-        this.callback();
+        this.notify();
     };
     
     public onDelete = (id: string) => {
         this.todos = this.todos
             .filter(todo => todo.id !== id);
-        this.callback();
+        this.notify();
     };
     
     public onToggle = (id: string) => {
         this.todos
             .filter(todo => todo.id === id)
             .forEach(todo => todo.done = !todo.done);
-        this.callback();
+        this.notify();
     };
 }
 
@@ -49,7 +55,7 @@ function render() {
         onToggle={storage.onToggle} />);
     ReactDOM.render(application, document.getElementById("app"));
 }
-storage.onChange(render);
+storage.onNotify(render);
 
 window.onload = () => {
     render();
